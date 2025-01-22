@@ -6,7 +6,7 @@ use CodeIgniter\Config\BaseService;
 
 class Services extends BaseService
 {
-    public static function generator()
+    public static function code()
     {
         return new \Esoftdream\Code\Generator();
     }
