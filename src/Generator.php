@@ -27,7 +27,7 @@ class Generator
      * @param string|null $table_column Nama kolom untuk count
      * @param string|null $kode         Kode saat ini untuk menambahkan suffix
      */
-    public function generate(?string $prefix = null, ?string $table_name = null, ?string $table_column = null, ?string $kode = null): string
+    public function generate(string $table_name, string $table_column, ?string $prefix = null, ?string $kode = null): string
     {
         if (! $prefix) {
             $prefix = random_string('alpha', 4);
