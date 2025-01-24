@@ -34,7 +34,7 @@ class Generator
         }
 
         if(ENVIRONMENT !== 'production') {
-            $prefix = 'DEV' . $prefix;
+            $prefix = 'D' . random_string('alpha', 2) . $prefix;
         }
 
         if ($kode) {
@@ -59,7 +59,7 @@ class Generator
 
         return sprintf(
             '%s-%s-%04d',
-            $prefix,
+            strtoupper($prefix),
             $date,
             $sequence
         );
