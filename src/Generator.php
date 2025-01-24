@@ -33,7 +33,7 @@ class Generator
             $prefix = random_string('alpha', 4);
         }
 
-        if(ENVIRONMENT !== 'production') {
+        if (ENVIRONMENT !== 'production') {
             $prefix = 'D' . random_string('alpha', 2) . $prefix;
         }
 
