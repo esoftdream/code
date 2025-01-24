@@ -33,6 +33,10 @@ class Generator
             $prefix = random_string('alpha', 4);
         }
 
+        if(ENVIRONMENT !== 'production') {
+            $prefix = 'DEV' . $prefix;
+        }
+
         if ($kode) {
             // Ambil kode dasar dan suffix (potong bagian belakang setelah kode dasar)
             $kode_parts = explode('-', $kode);
