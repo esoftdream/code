@@ -29,6 +29,8 @@ class Generator
      */
     public function generate(string $table_name, string $table_column, ?string $prefix = null, ?string $kode = null): string
     {
+        helper('text');
+        
         if (! $prefix) {
             $prefix = random_string('alpha', 4);
         }
