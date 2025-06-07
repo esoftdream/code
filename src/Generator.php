@@ -3,42 +3,79 @@
 namespace Esoftdream\Code;
 
 use CodeIgniter\I18n\Time;
+use CodeIgniter\Database\BaseConnection;
+use Config\Database;
 
 class Generator
 {
     /**
-     * Hitung count berdasarkan tabel yang digunakan
+     * Instance koneksi database
+     *
+     * @var BaseConnection
+     */
+    protected BaseConnection $db;
+
+    /**
+     * Inisialisasi koneksi database
+     */
+    public function __construct()
+    {
+        $this->db = Database::connect();
+    }
+
+    /**
+     * Menutup koneksi database saat objek dihancurkan
+     */
+    public function __destruct()
+    {
+        $this->db->close();
+    }
+
+    /**
+     * Mengambil jumlah entri pada tabel tertentu berdasarkan tanggal hari ini.
+     *
+     * @param string $table_name   Nama tabel
+     * @param string $table_column Nama kolom bertipe tanggal/waktu
+     * @return int                 Jumlah entri hari ini
      */
     private function getCountToday(string $table_name, string $table_column): int
     {
         $today = Time::now()->toLocalizedString('yyyy-MM-dd');
 
-        $builder = db_connect()->table($table_name);
-        $builder->where('DATE(' . $table_column . ')', $today);
-
-        return $builder->countAllResults();
+        return $this->db
+            ->table($table_name)
+            ->where('DATE(' . $table_column . ')', $today)
+            ->countAllResults();
     }
 
     /**
-     * Undocumented function
+     * Generate kode unik berdasarkan tanggal dan jumlah entri hari ini.
      *
-     * @param string|null $prefix       Custom prefix
-     * @param string|null $table_name   Nama tabel untuk count
-     * @param string|null $table_column Nama kolom untuk count
-     * @param string|null $kode         Kode saat ini untuk menambahkan suffix
+     * Format: PREFIX-YYMMDD-XXXX
+     *
+     * Jika parameter $kode disediakan, akan ditingkatkan sebagai suffix numerik:
+     *   Contoh: WOTF-240607-0003 → WOTF-240607-0004
+     *
+     * @param string $table_name    Nama tabel untuk pengecekan jumlah
+     * @param string $table_column  Nama kolom waktu/tanggal di tabel
+     * @param string|null $prefix   Prefix kode (jika null akan dibuat acak)
+     * @param string|null $kode     Kode yang sudah ada (untuk increment suffix)
+     * @return string               Kode yang dihasilkan
      */
     public function generate(string $table_name, string $table_column, ?string $prefix = null, ?string $kode = null): string
     {
         helper('text');
-        
+
         if (! $prefix) {
             $prefix = random_string('alpha', 4);
         }
 
+        // Tambahkan penanda development di prefix jika bukan production
         if (ENVIRONMENT !== 'production') {
             $prefix = 'D' . random_string('alpha', 2) . $prefix;
         }
 
+        // Jika kode sudah ada, buat suffix increment
         if ($kode) {
             // Ambil kode dasar dan suffix (potong bagian belakang setelah kode dasar)
             $kode_parts = explode('-', $kode);
