@@ -2,33 +2,24 @@
 
 namespace Esoftdream\Code;
 
-use CodeIgniter\I18n\Time;
 use CodeIgniter\Database\BaseConnection;
+use CodeIgniter\I18n\Time;
 use Config\Database;
+use InvalidArgumentException;
 
 class Generator
 {
     /**
      * Instance koneksi database
-     *
-     * @var BaseConnection
      */
     protected BaseConnection $db;
 
     /**
      * Inisialisasi koneksi database
      */
-    public function __construct()
+    public function __construct(?BaseConnection $db = null)
     {
-        $this->db = Database::connect();
-    }
-
-    /**
-     * Menutup koneksi database saat objek dihancurkan
-     */
-    public function __destruct()
-    {
-        $this->db->close();
+        $this->db = $db ?? Database::connect();
     }
 
     /**
@@ -36,7 +27,8 @@ class Generator
      *
      * @param string $table_name   Nama tabel
      * @param string $table_column Nama kolom bertipe tanggal/waktu
-     * @return int                 Jumlah entri hari ini
+     *
+     * @return int Jumlah entri hari ini
      */
     private function getCountToday(string $table_name, string $table_column): int
     {
@@ -56,14 +48,19 @@ class Generator
      * Jika parameter $kode disediakan, akan ditingkatkan sebagai suffix numerik:
      *   Contoh: WOTF-240607-0003 → WOTF-240607-0004
      *
-     * @param string $table_name    Nama tabel untuk pengecekan jumlah
-     * @param string $table_column  Nama kolom waktu/tanggal di tabel
-     * @param string|null $prefix   Prefix kode (jika null akan dibuat acak)
-     * @param string|null $kode     Kode yang sudah ada (untuk increment suffix)
-     * @return string               Kode yang dihasilkan
+     * @param string      $table_name   Nama tabel untuk pengecekan jumlah
+     * @param string      $table_column Nama kolom waktu/tanggal di tabel
+     * @param string|null $prefix       Prefix kode (jika null akan dibuat acak)
+     * @param string|null $kode         Kode yang sudah ada (untuk increment suffix)
+     *
+     * @return string Kode yang dihasilkan
      */
     public function generate(string $table_name, string $table_column, ?string $prefix = null, ?string $kode = null): string
     {
+        if (! preg_match('/^[a-zA-Z0-9_]+$/', $table_name)) {
+            throw new InvalidArgumentException('Nama tabel tidak valid.');
+        }
+
         helper('text');
 
         if (! $prefix) {
